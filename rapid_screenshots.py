@@ -8,6 +8,7 @@ from threading import Thread
 import threading
 from time import sleep
 import signal
+import argparse
 #import sys
 
 #Global variables
@@ -110,9 +111,12 @@ def main_method(time_limit, loop_time_limit, screenshots_max):
     signal.signal(signal.SIGINT, ksh.kill_signal_handler)
     
     consumer_process.start()
-    producer_process.start()    
-    producer_process.join()
-    consumer_process.join()
+    producer_process.start()
+    while(producer_process.is_alive()):
+        producer_process.join(4) #this is a waste of resources, but maybe it'll work now?
+    while(consumer_process.is_alive()):
+        consumer_process.join(4)
+    print('program exiting')
     '''try:
         producer_process.join()
         consumer_process.join()
@@ -128,4 +132,9 @@ if __name__ == '__main__':
     #rapidly take screenshots and queue them to be saved as images
     #if the time limit is reached or the maximum number of screenshots then
     #overwrite old files
-    main_method(DEFAULT_TIME_LIMIT, DEFAULT_LOOP_TIME_LIMIT, DEFAULT_SCREENSHOTS_MAX)
+    parser = argparse.ArgumentParser('Rapidly take screenshots')
+    parser.add_argument('--time_limit', type=float, default=DEFAULT_TIME_LIMIT, help='The time in seconds for which the program should run')
+    parser.add_argument('--loop_time_limit', type=float, default=DEFAULT_LOOP_TIME_LIMIT, help='The time in seconds after which the program will loop and overwrite old screenshots')
+    parser.add_argument('--maximum_screenshots', type=int, default=DEFAULT_SCREENSHOTS_MAX, help='The amount of screenshots to keep. After this many have been made, old screenshots will be overwritten.')
+    n = parser.parse_args()
+    main_method(n.time_limit, n.loop_time_limit, n.maximum_screenshots)
