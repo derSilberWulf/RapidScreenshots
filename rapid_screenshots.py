@@ -1,6 +1,6 @@
-#TO DO make it so signal can kill program, but all queued images will be saved
-#Process command line arguments
-#ERRORS. The kill signal might be going to the child thread or something. Issue 846817 on https://bugs.python.org/issue846817
+#Note: the CTRL+C to end the program still isn't working correctly
+#Use CTRL+BREAK. This will not allow it to end gracefully,
+# but it shouldn't matter too much.
 import pyscreenshot
 from timeit import default_timer as timer
 from Queue import Queue, Empty
@@ -11,9 +11,9 @@ import signal
 import argparse
 
 #Global variables
-DEFAULT_TIME_LIMIT = 10 #runs for ten seconds
-DEFAULT_LOOP_TIME_LIMIT = 0
-DEFAULT_SCREENSHOTS_MAX = 0
+DEFAULT_TIME_LIMIT = 10 #runs for n seconds
+DEFAULT_LOOP_TIME_LIMIT = 0 #keeps n seconds of images then overwrites old images
+DEFAULT_SCREENSHOTS_MAX = 0 #keeps n images then overwrites old images
 
 
 class KillSignalHandler:
@@ -155,27 +155,16 @@ def main_method(time_limit, loop_time_limit, screenshots_max):
     
     consumer_process.start()
     producer_process.start()
-    while(producer_process.is_alive()):
-        producer_process.join(4) #this is a waste of resources, but maybe it'll work now?
-    while(consumer_process.is_alive()):
-        consumer_process.join(4)
-    print('program exiting')
-    '''try:
-        producer_process.join()
-        consumer_process.join()
-        #while(True):
-            #sleep(1)
-    except KeyboardInterrupt:
-        print('pressed CTRL+C')
-        producer_process.stop()
-        producer_process.join()
-        consumer_process.join()'''
+    producer_process.join()
+    consumer_process.join()
+    print('Program exiting.')
+
 
 if __name__ == '__main__':
     #rapidly take screenshots and queue them to be saved as images
     #if the time limit is reached or the maximum number of screenshots then
     #overwrite old files
-    parser = argparse.ArgumentParser('Rapidly take screenshots')
+    parser = argparse.ArgumentParser('Rapidly take screenshots. Use CTRL+BREAK to end the program.')
     parser.add_argument('--time_limit', type=float, default=DEFAULT_TIME_LIMIT, help='The time in seconds for which the program should run')
     parser.add_argument('--loop_time_limit', type=float, default=DEFAULT_LOOP_TIME_LIMIT, help='The time in seconds after which the program will loop and overwrite old screenshots')
     parser.add_argument('--maximum_screenshots', type=int, default=DEFAULT_SCREENSHOTS_MAX, help='The amount of screenshots to keep. After this many have been made, old screenshots will be overwritten.')
