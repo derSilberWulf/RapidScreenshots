@@ -1,3 +1,8 @@
+##
+# Rapid Screenshots
+# @author Vincent Yahna
+# @created October 6, 2017
+
 #Note: the CTRL+C to end the program still isn't working correctly
 #Use CTRL+BREAK. This will not allow it to end gracefully,
 # but it shouldn't matter too much.
@@ -38,10 +43,6 @@ class KillSignalHandler:
         print('You pressed CTRL+C')
         self.image_producer_thread.stop()
         self.image_consumer_thread.stop()
-        #self.image_producer_thread.join()
-        #self.image_consumer_thread.join()
-        #sys.exit(0)
-
 
 class ScreenshotProducerThread(Thread):
     """
@@ -121,7 +122,7 @@ class ImageConsumerThread(Thread):
                         print('time for a new loop: image count: ' + str(imgnum))
                         imgnum = 1
                     elif(timer() - start_timer > self.loop_time_limit and self.loop_time_limit > 0):
-                        print('timed for a new loop: timer: ' + str(timer() - start_timer))
+                        print('time for a new loop: timer: ' + str(timer() - start_timer))
                         imgnum = 1
                         start_timer = timer()
                 except Empty:
